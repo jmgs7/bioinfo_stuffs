@@ -64,7 +64,7 @@ def run_trimming(args):  # Quitamos los adaptadores de los reads.
         
     return({sample_name:{"R1":fout1, "R2":fout2}})
 
-def trimming_files(sample_dict,adapter,run): # Paralelización de la anterior, igual que lo hemos hecho ahora.
+def trimming_files(sample_dict,adapter,run): # Paralelización de la anterior, igual que lo hemos hecho antes.
     """
         Function to run cutadapt in multiple threads
     """
