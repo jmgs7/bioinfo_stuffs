@@ -17,7 +17,7 @@ def list_dir_files(dir,pattern = "None"):
     """
     import glob
     if pattern == "None":
-        files = glob.glob(f"{dir}/*")
+        files = glob.glob(f"{dir}/*") #f para indicar que es un string literal y así introducir la variable "dir" en la cadena.
     else:
         files = glob.glob(f"{dir}/*{pattern}*")
     return files
@@ -28,30 +28,30 @@ def get_sample_name(file_names):
         Function to list the sample names of a list of fastq files
     """
     import os
-    return(list(set([os.path.basename(file).split("_R1_")[0] for file in file_names if "_R1_" in file])))
+    return(list(set([os.path.basename(file).split("_R1_")[0] for file in file_names if "_R1_" in file]))) # R1????
 
 
 def eval_fastqc_file(args):
     """
         Function to run fastqc
     """
-    sample_dict,output,threads,run = args
-    import subprocess
-    if run == "1":
-        subprocess.run(f"fastqc {sample_dict['R1']} -o {output} -t {threads}",shell=True)
-        subprocess.run(f"fastqc {sample_dict['R2']} -o {output} -t {threads}",shell=True)
+    sample_dict,output,threads,run = args # Fíjate que la notación es al revés de cualquier variable.
+    import subprocess # Este módulo permite correr subprocesos de bash en tu código de python usando las pipelines de I/O.
+    if run == "1": # Variable de control para evitar ejecuciones erróneas, supongo. ??????
+        subprocess.run(f"fastqc {sample_dict['R1']} -o {output} -t {threads}",shell=True) # Replicate 1.
+        subprocess.run(f"fastqc {sample_dict['R2']} -o {output} -t {threads}",shell=True) # Replicate 2.
 
-def eval_fastq_files(sample_dict,output,run):
+def eval_fastq_files(sample_dict,output,run): # Paralelización de la función anterior. Para todas las muestras, no para ir de 1 en 1.
     """
         Function to run fastqc in multiple threads
     """
-    import multiprocessing
+    import multiprocessing                                          # 8 threads por muestra por algo?
     with multiprocessing.Pool(len(sample_dict)) as pool:
-        pool.map(eval_fastqc_file,[(sample_dict[sample_name],output,8,run) for sample_name in sample_dict])
+        pool.map(eval_fastqc_file,[(sample_dict[sample_name],output,8,run) for sample_name in sample_dict]) # OJO! Mapeamos a todos los procesadores lógicos.
 
-def run_trimming(args):
+def run_trimming(args):  # Quitamos los adaptadores de los reads.
     """
-        Function to run cutadapt
+        Function to run cutadapt    
     """
     import subprocess
     sample_name, sample_dict, num_threads, run = args
@@ -64,7 +64,7 @@ def run_trimming(args):
         
     return({sample_name:{"R1":fout1, "R2":fout2}})
 
-def trimming_files(sample_dict,adapter,run):
+def trimming_files(sample_dict,adapter,run): # Paralelización de la anterior, igual que lo hemos hecho ahora.
     """
         Function to run cutadapt in multiple threads
     """
